@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Flood Risk Predictor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to bottom right, #d0eafc, #f0faff);
+      padding: 30px;
+      margin: 0;
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #1f618d;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: #1e8449;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      max-width: 800px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    form:hover {
+      transform: scale(1.01);
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      transition: 0.3s ease;
+    }
+
+    input:focus {
+      border-color: #3498db;
+      outline: none;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.3);
+    }
+
+    button {
+      grid-column: span 2;
+      padding: 12px;
+      font-size: 18px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2e86c1;
+    }
+
+    .result {
+      margin-top: 30px;
+      font-size: 22px;
+      color: #1e8449;
+      font-weight: bold;
+    }
+
+    ul {
+      padding: 0;
+      list-style: none;
+      font-size: 18px;
+      margin-top: 0;
+    }
+
+    ul li {
+      margin-bottom: 8px;
+    }
+
+    img {
+      margin-top: 25px;
+      max-width: 90%;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease;
+    }
+
+    img:hover {
+      transform: scale(1.03);
+    }
+
+    @media screen and (max-width: 600px) {
+      form {
+        grid-template-columns: 1fr;
+      }
+      button {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>📊 Model Performance</h2>
+  <ul>
+    <li><strong>RMSE:</strong> {{ rmse }}</li>
+    <li><strong>R² Score:</strong> {{ r2 }}</li>
+    <li><strong>MAE:</strong> {{ mae }}</li>
+  </ul>
+
+  <img src="{{ plot_url }}" alt="Actual vs Predicted Graph">
+
+  <h1>🌊 Flood Probability Predictor</h1>
+  <form id="predict-form">
+    {% for feature in features %}
+      <input type="number" step="any" placeholder="{{ feature }}" name="{{ feature }}" required>
+    {% endfor %}
+    <br>
+    <center><button type="submit">Predict Flood Risk</button></center>
+    
+  </form>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const form = document.getElementById('predict-form');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = [...form.elements].filter(el => el.type === "number").map(el => el.value);
+      const res = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ features: data })
+      });
+      const json = await res.json();
+      document.getElementById('result').innerText = "Predicted Flood Probability: " + json.prediction;
+    });
+  </script>
+</body>
+</html>
