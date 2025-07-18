@@ -50,6 +50,7 @@ joblib.dump(X.columns.tolist(), 'features.pkl')
 
 # Predict and evaluate
 y_pred = model.predict(X_test)
+y_pred = np.clip(y_pred, 0, 1)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 r2 = r2_score(y_test, y_pred)
 mae = mean_absolute_error(y_test, y_pred)

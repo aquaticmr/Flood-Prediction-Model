@@ -26,7 +26,9 @@ def predict():
     values = np.array(data['features'], dtype=float).reshape(1, -1)
     scaled_values = scaler.transform(values)
     prediction = model.predict(scaled_values)[0]
+    prediction = np.clip(prediction, 0, 1)  # Clip to 0–1 range
     return jsonify({'prediction': round(prediction, 4)})
+
 
 if __name__ == '__main__':
     app.run(debug=True)
